@@ -1,4 +1,4 @@
-name: Pipeline CI
+name: Docker Publish
 
 on:
   push:
@@ -6,22 +6,22 @@ on:
       - main
 
 jobs:
-  build:
+  docker:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout do código
         uses: actions/checkout@v4
 
-      - name: Configurar Node.js
-        uses: actions/setup-node@v4
+      - name: Login no Docker Hub
+        uses: docker/login-action@v3
         with:
-          node-version: 22
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Instalar dependências
-        run: npm install
-
-      - name: Iniciar aplicação
-        run: |
-          npm start &
-          sleep 5
+      - name: Build e Push da imagem
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: miguelnt/aula-devops-docker:latest
